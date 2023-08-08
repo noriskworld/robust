@@ -1,0 +1,56 @@
+---
+title: "Tolerancing"
+output: html_notebook
+---
+```{r}
+library(tidyverse)
+```
+
+# Tolerancing
+# Tolerance Stack-up
+
+## Monte Carlo
+
+
+```{r}
+df_csv <- "name,nominal,upper_tol,lower_tol,sigma_level
+B1,1,0.025,-0.025,3
+B2,1,0.025,-0.025,3
+B3,1,0.025,-0.025,3
+B4,1,0.025,-0.025,3
+E,4.0,0.4,0.0,3
+"
+df_X <- read_csv(df_csv) %>% 
+  mutate(max = nominal + upper_tol,
+         min = nominal + lower_tol,
+         mean = (min + max)/2,
+         std = (upper_tol - lower_tol)/2/sigma_level)
+
+df_X
+```
+
+Now define the transfer function
+```{r}
+transf = "Gap = E - B1 - B2 - B3 - B4"
+sepvec = str_trim(str_split(transf, "=", simplify=T))
+```
+
+create data frame
+```{r}
+N_SIM <- 1e3
+tbl_colnames = c(df_X$name, sepvec[1])
+df = tibble(.rows=N_SIM)
+for (i in 1:dim(df_X)[1]){
+  df[[df_X$name[i] ]] = rnorm(N_SIM, mean=df_X$mean[i], sd=df_X$std[i])
+}
+df <- df %>% 
+  mutate("{sepvec[1]}" := rlang::eval_tidy(
+    (rlang::parse_expr(sepvec[2])))
+  )
+
+hist(df$Gap)
+```
+
+
+
+

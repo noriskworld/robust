@@ -50,6 +50,34 @@ df <- df %>%
 
 hist(df$Gap)
 ```
+```{r}
+my_skim <- skim_with(base = NULL,
+                     numeric = sfl(mean = mean,
+                                   std = sd, 
+                                   min = min, 
+                                   p01 = ~ quantile(., 0.01),
+                                   p05 = ~ quantile(., 0.05),
+                                   p25 = ~ quantile(., 0.25),
+                                   p50 = ~ quantile(., 0.50),
+                                   p75 = ~ quantile(., 0.75),
+                                   p95 = ~ quantile(., 0.95),
+                                   p99 = ~ quantile(., 0.99),
+                                   ),
+                     append = FALSE
+                     )
+skim_df <- my_skim(df) %>% 
+  as_tibble() %>% 
+  select(-skim_type) %>% 
+  pivot_longer(cols = starts_with("numeric."),
+               names_to = "metric",
+               values_to = "value") %>% 
+  mutate(metric = str_remove(metric, "numeric."))
+
+skim_df
+```
+
+
+
 
 
 

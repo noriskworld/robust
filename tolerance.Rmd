@@ -4,6 +4,7 @@ output: html_notebook
 ---
 ```{r}
 library(tidyverse)
+library(skimr)
 ```
 
 # Tolerancing
@@ -62,6 +63,7 @@ my_skim <- skim_with(base = NULL,
                                    p75 = ~ quantile(., 0.75),
                                    p95 = ~ quantile(., 0.95),
                                    p99 = ~ quantile(., 0.99),
+                                   max = max
                                    ),
                      append = FALSE
                      )

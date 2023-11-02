@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AHP Implementation</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid black;
+            text-align: center;
+            padding: 8px;
+        }
+        .grey-out {
+            background-color: #e0e0e0;
+        }
+    </style>
+    <script>
+        function generateTable() {
+            document.getElementById("ahpResults").innerHTML = "";
+            const numAlternatives = parseInt(document.getElementById("numAlternatives").value);
+            let tableHTML = "<tr><th>#</th>";
+
+            // Generate headers
+            for (let i = 1; i <= numAlternatives; i++) {
+                tableHTML += `<th contenteditable='true'>Alt ${i}</th>`;
+            }
+            tableHTML += "</tr>";
+
+            // Generate rows
+            for (let i = 0; i < numAlternatives; i++) {
+                tableHTML += `<tr><td contenteditable='true'>Alt ${i + 1}</td>`;
+                for (let j = 0; j < numAlternatives; j++) {
+                    if (j < i) {
+                        tableHTML += `<td><input type='number' min='0.1' max='10' step='0.1' value='1' onchange='updateInverse(${i}, ${j}, this.value)'/></td>`;
+                    } else if (j === i) {
+                        tableHTML += `<td class='grey-out'>1</td>`;
+                    } else {
+                        tableHTML += `<td class='grey-out'></td>`;
+                    }
+                }
+                tableHTML += "</tr>";
+            }
+            document.getElementById("comparisonTable").innerHTML = tableHTML;
+        }
+
+function updateInverse(row, col, value) {
+    const parsedValue = parseFloat(value);
+    if (isNaN(parsedValue) || parsedValue === 0) {
+        alert("Invalid input. Please enter a number greater than 0.");
+        return;
+    }
+    const table = document.getElementById("comparisonTable");
+    const inverseCell = table.rows[col + 1].cells[row + 1];
+    inverseCell.innerHTML = (1 / parsedValue).toFixed(2);
+}
+
+// AHP calculation (basic and approximated)
+    let ahpMatrix = [];
+    let rankings = [];
+function calculateAHP() {
+    const numAlternatives = parseInt(document.getElementById("numAlternatives").value);
+    const table = document.getElementById("comparisonTable");
+
+    // Build the AHP matrix from table data
+    for (let i = 1; i <= numAlternatives; i++) {
+        let row = [];
+        for (let j = 1; j <= numAlternatives; j++) {
+            let cellValue;
+
+            if (i === j) { // Diagonal elements are always 1
+                cellValue = 1;
+            } else if (j < i) { // Lower triangle
+                cellValue = parseFloat(table.rows[i].cells[j].firstChild.value);
+                if (isNaN(cellValue) || cellValue <= 0) {
+                    alert(`Invalid input detected at row ${i}, column ${j}. Please correct your data.`);
+                    return;
+                }
+            } else { // Upper triangle (inverse of lower triangle)
+                cellValue = 1 / parseFloat(table.rows[j].cells[i].firstChild.value);
+                if (isNaN(cellValue)) {
+                    alert(`Invalid input detected at row ${j}, column ${i}. Please correct your data.`);
+                    return;
+                }
+            }
+            row.push(cellValue);
+        }
+        ahpMatrix.push(row);
+    }
+
+    // Basic AHP calculation
+    let totals = new Array(numAlternatives).fill(0);
+    rankings = new Array(numAlternatives).fill(0);
+
+    // Sum columns
+    for (let i = 0; i < numAlternatives; i++) {
+        for (let j = 0; j < numAlternatives; j++) {
+            totals[i] += ahpMatrix[j][i];
+        }
+    }
+
+    // Normalize and calculate average of rows
+    for (let i = 0; i < numAlternatives; i++) {
+        for (let j = 0; j < numAlternatives; j++) {
+            ahpMatrix[i][j] /= totals[j];
+            rankings[i] += ahpMatrix[i][j];
+        }
+        rankings[i] /= numAlternatives;
+    }
+
+    // Display results in a table
+    let resultsTable = "<table border='1'><tr><th>Alternative</th><th>Ranking</th></tr>";
+    for (let i = 0; i < rankings.length; i++) {
+        resultsTable += `<tr><td>Alt ${i + 1}</td><td>${rankings[i].toFixed(2)}</td></tr>`;
+    }
+    resultsTable += "</table>";
+    document.getElementById("ahpResults").innerHTML = resultsTable;
+}
+
+function exportToCSV() {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    let table = document.getElementById("comparisonTable"); // Ensure this is the ID of your AHP matrix table
+
+    // Loop through each row of the table
+    for (let i = 0; i < table.rows.length; i++) {
+        let rowData = [];
+        for (let j = 0; j < table.rows[i].cells.length; j++) {
+            let text = table.rows[i].cells[j].innerText || table.rows[i].cells[j].textContent;
+            rowData.push(text.replace(/,/g, "")); // Remove commas to maintain CSV structure
+        }
+        csvContent += rowData.join(",") + "\r\n";
+    }
+
+    // Separate sections
+    csvContent += "\r\n";
+
+    // Append rankings
+    csvContent += "Alternative,Ranking\r\n";
+    for (let i = 0; i < rankings.length; i++) {
+        csvContent += `Alt ${i + 1},${rankings[i].toFixed(2)}\r\n`;
+    }
+
+    var encodedUri = encodeURI(csvContent);
+    var link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "ahp_results.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+        
+    </script>
+</head>
+<body>
+    <div>
+        <label for="numAlternatives">Number of Alternatives:</label>
+        <input type="number" id="numAlternatives" min="2" value="2">
+        <button onclick="generateTable()">Generate Table</button>
+    </div>
+
+    <table id="comparisonTable"></table>
+    <button onclick="calculateAHP()">Calculate AHP Rankings</button>
+    <div id="ahpResults"></div>
+
+    <button onclick="exportToCSV()">Export to CSV</button>
+
+</body>
+</html>
+

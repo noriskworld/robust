@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pugh Matrix</title>
+<style>
+  table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding: 5px;
+    text-align: center;
+  }
+  th[contenteditable="true"], td[contenteditable="true"] {
+    background-color: #f3f3f3;
+    cursor: text;
+  }
+  select {
+    width: 100%;
+  }
+</style>
+</head>
+<body>
+
+<H2>Please input the size the Pugh Matrix below.</H2>
+
+<label for="alternatives">Number of Alternative Designs:</label>
+<input type="number" id="alternatives" min="1" value="3"><br><br>
+
+<label for="criteria">Number of Criteria:</label>
+<input type="number" id="criteria" min="1" value="3"><br><br>
+
+<button onclick="generateMatrix()">Generate Matrix</button>
+<button onclick="calculateResults()">Calculate Results</button>
+
+<button onclick="exportToExcel()">Export to Excel</button>
+
+<div id="resultsTable"></div>
+
+<H2>Please Input the Pugh Matrix below.</H2>
+
+<div id="matrixContainer"></div>
+
+<script>
+  function generateMatrix() {
+    var numAlternatives = parseInt(document.getElementById('alternatives').value, 10) + 1;
+    var numCriteria = parseInt(document.getElementById('criteria').value, 10) + 1;
+    var matrixContainer = document.getElementById('matrixContainer');
+
+    // Clear previous content
+    matrixContainer.innerHTML = "";
+    document.getElementById('resultsTable').innerHTML = "";
+
+    var table = document.createElement('table');
+
+    // Creating the header row
+    var header = table.createTHead().insertRow(0);
+    for (var a = 0; a < numAlternatives; a++) {
+      var cell = header.insertCell(a);
+      cell.setAttribute('contenteditable', a !== 0);
+      cell.textContent = a === 0 ? "" : "Design " + a;
+    }
+
+    // Creating criteria rows
+    for (var c = 1; c < numCriteria; c++) {
+      var row = table.insertRow(c);
+      for (var a = 0; a < numAlternatives; a++) {
+        var cell = row.insertCell(a);
+        if (a === 0) {
+          cell.setAttribute('contenteditable', 'true');
+          cell.textContent = "Criteria " + c;
+        } else if (a === 1) {
+          cell.textContent = "S";
+        } else {
+          var select = document.createElement('select');
+          ['S', '+', '-'].forEach(function (item) {
+            var option = document.createElement('option');
+            option.value = item;
+            option.text = item;
+            select.appendChild(option);
+          });
+          cell.appendChild(select);
+        }
+      }
+    }
+      
+    matrixContainer.appendChild(table);
+  }
+
+  function calculateResults() {
+    // ... add your logic here to calculate and display the results ...
+  var matrixTable = document.getElementById('matrixContainer').getElementsByTagName('table')[0];
+  var numAlternatives = matrixTable.rows[0].cells.length;
+  var numCriteria = matrixTable.rows.length;
+  
+  // Initialize counts
+  var n_pos = new Array(numAlternatives).fill(0);
+  var n_neg = new Array(numAlternatives).fill(0);
+
+  // Iterate over rows and columns to count "+" and "-"
+  for (var r = 1; r < numCriteria; r++) {
+    for (var c = 2; c < numAlternatives; c++) { // Start from 3rd column (index 2)
+      var cellValue = matrixTable.rows[r].cells[c].getElementsByTagName('select')[0].value;
+      if (cellValue === "+") {
+        n_pos[c]++;
+      } else if (cellValue === "-") {
+        n_neg[c]++;
+      }
+    }
+  }
+
+  // Display results
+  var resultsContainer = document.getElementById('resultsTable');
+  resultsContainer.innerHTML = ""; // Clear previous results
+
+  var resultsTable = document.createElement('table');
+
+  // Header Row
+  var headerRow = resultsTable.insertRow();
+  headerRow.insertCell().textContent = "Design";
+  headerRow.insertCell().textContent = "Number of '+'";
+  headerRow.insertCell().textContent = "Number of '-'";
+
+  // Data Rows
+  for (var c = 2; c < numAlternatives; c++) {
+    var row = resultsTable.insertRow();
+    var header = matrixTable.rows[0].cells[c].textContent || `Design ${c}`;
+    row.insertCell().textContent = header;
+    row.insertCell().textContent = n_pos[c];
+    row.insertCell().textContent = n_neg[c];
+  }
+
+  resultsContainer.appendChild(resultsTable);
+}
+
+  function exportToExcel() {
+  let matrixTable = document.getElementById('matrixContainer').getElementsByTagName('table')[0];
+  let resultsTable = document.getElementById('resultsTable').getElementsByTagName('table')[0];
+
+  let csvContent = tableToCSV(matrixTable) + '\r\n\r\n' + tableToCSV(resultsTable);
+  let encodedUri = encodeURI('data:text/csv;charset=utf-8,' + csvContent);
+
+  // Creating a temporary link to trigger the download
+  let link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "pugh_matrix_results.csv");
+  document.body.appendChild(link); // Required for FF
+
+  link.click(); // Trigger the download
+  document.body.removeChild(link); // Clean up after download
+}
+
+function tableToCSV(table) {
+  let csv = [];
+  for (let i = 0, row; row = table.rows[i]; i++) {
+    let rowArray = [];
+    for (let j = 0, col; col = row.cells[j]; j++) {
+      // Check if the cell contains a dropdown (select element)
+      let text = col.querySelector('select') ? col.querySelector('select').value : col.innerText;
+      rowArray.push('"' + text.replace(/"/g, '""') + '"'); // Escape double quotes
+    }
+    csv.push(rowArray.join(','));
+  }
+  return csv.join('\r\n'); // Carriage return and new line
+}
+
+
+</script>
+
+</body>
+</html>

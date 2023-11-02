@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dynamic Table with Editable Headers</title>
+<style>
+  table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding: 5px;
+    text-align: center;
+  }
+  th[contenteditable="true"] {
+    background-color: #f3f3f3;
+    cursor: text;
+  }
+</style>
+</head>
+<body>
+
+<label for="rows">Number of Rows:</label>
+<input type="number" id="rows" min="1" value="3"><br><br>
+
+<label for="cols">Number of Columns:</label>
+<input type="number" id="cols" min="1" value="3"><br><br>
+
+<button onclick="generateTable()">Generate Table</button>
+
+<p id="largestSumMessage"></p>
+
+<div id="tableContainer"></div>
+
+<script>
+  function generateTable() {
+    var numRows = parseInt(document.getElementById('rows').value, 10) + 1; // +1 for header
+    var numCols = parseInt(document.getElementById('cols').value, 10);
+    var tableContainer = document.getElementById('tableContainer');
+
+    // Clear previous content
+    tableContainer.innerHTML = "";
+    document.getElementById('largestSumMessage').textContent = "";
+
+    var table = document.createElement('table');
+    var header = table.createTHead().insertRow(0);
+
+    // Creating header row
+    for (var c = 0; c < numCols; c++) {
+      var cell = header.insertCell(c);
+      cell.setAttribute('contenteditable', 'true'); // Make header cells editable
+      cell.textContent = "Column " + (c + 1);
+    }
+
+    // Creating data rows
+    for (var r = 1; r < numRows; r++) {
+      var row = table.insertRow(r);
+      for (var c = 0; c < numCols; c++) {
+        var cell = row.insertCell(c);
+        cell.innerHTML = '<input type="number" value="0" oninput="calculateSums()">';
+      }
+    }
+
+    tableContainer.appendChild(table);
+  }
+
+  function calculateSums() {
+    var table = document.getElementById('tableContainer').getElementsByTagName('table')[0];
+    var numRows = table.rows.length;
+    var numCols = table.rows[0].cells.length;
+
+    var sums = new Array(numCols).fill(0);
+    var largestSum = 0;
+    var largestColumn = 0;
+    var largestColumnName = "";
+
+    for (var c = 0; c < numCols; c++) {
+      for (var r = 1; r < numRows; r++) {
+        var value = parseFloat(table.rows[r].cells[c].getElementsByTagName('input')[0].value);
+        sums[c] += value;
+      }
+      if (sums[c] > largestSum) {
+        largestSum = sums[c];
+        largestColumn = c + 1;
+        largestColumnName = table.rows[0].cells[c].textContent || `Column ${c + 1}`;
+      }
+    }
+
+    var message = "Column " + largestColumnName + " has the largest sum (" + largestSum + ").";
+    document.getElementById('largestSumMessage').textContent = message;
+  }
+</script>
+
+</body>
+</html>

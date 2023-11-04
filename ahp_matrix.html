@@ -4,20 +4,31 @@
     <meta charset="UTF-8">
     <title>AHP Implementation</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
         table {
             border-collapse: collapse;
             width: 100%;
+            margin-top: 10px;
         }
         th, td {
             border: 1px solid black;
             text-align: center;
             padding: 8px;
         }
+        input, button {
+            padding: 5px;
+            margin: 5px;
+        }
         .grey-out {
             background-color: #e0e0e0;
         }
     </style>
-    <script>
+</head>
+
+   
+<script>
 function generateTable() {
     var ahpResultsElement = document.getElementById("ahpResults");
     if (ahpResultsElement) {
@@ -198,16 +209,18 @@ function exportToCSV() {
    
 </script>
 
-</head>
+
 <body>
     <div>
         <label for="numAlternatives">Number of Alternatives:</label>
         <input type="number" id="numAlternatives" min="2" value="2">
         <button onclick="generateTable()">Generate Table</button>
     </div>
-
+    <H2>AHP Pairwise Comparison Table</H2>
     <table id="comparisonTable"></table>
+    <H2>AHP Rankings</H2>
     <button onclick="calculateAHP()">Calculate AHP Rankings</button>
+
     <table id="ahpResults"></table>
     <button onclick="exportToCSV()">Export to CSV</button>
 

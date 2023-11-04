@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AHP Summary</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 5px;
+            text-align: left;
+        }
+        .editable {
+            min-width: 100px;
+            cursor: pointer;
+        }
+        .editable:hover {
+            background-color: #f3f3f3;
+        }
+        #tabs {
+            overflow: hidden;
+            background-color: #f1f1f1;
+        }
+        .tab {
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            font-size: 17px;
+        }
+        .tab:hover {
+            background-color: #ddd;
+        }
+        .tab.active {
+            background-color: #ccc;
+        }
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="tabs">
+    <button class="tab" onclick="openTab(event, 'summaryTab')">Summary</button>
+    <button class="tab" onclick="openTab(event, 'criteriaComparisonTab')">Criteria Comparison</button>
+    <button class="tab" onclick="openTab(event, 'alternativesComparisonTab')">Alternatives Comparison</button>
+</div>
+
+<div id="summaryTab" class="tabcontent">
+    <h3>Summary</h3>
+    <input type="number" id="numAlternatives" placeholder="Number of Alternatives (n)">
+    <input type="number" id="numCriteria" placeholder="Number of Criteria (k)">
+    <button onclick="generateSummaryTable()">Generate Table</button>
+    <table id="summaryTable"></table>
+</div>
+
+<div id="criteriaComparisonTab" class="tabcontent">
+    <h3>Criteria Comparison</h3>
+    <div id="criteriaComparisonContainer"></div>
+</div>
+
+<div id="alternativesComparisonTab" class="tabcontent">
+    <h3>Alternatives Comparison</h3>
+    <div id="alternativesComparisonContainer"></div>
+</div>
+
+<script>
+    // Add the generateAHPTable, updateInverse, and calculateAHP functions here.
+
+    function generateSummaryTable() {
+        // This function will create the summary table based on input values for n and k.
+        // It should set up the table with editable cells for criteria and alternatives.
+        // Additionally, it will set up the area for criteria weights and the weighted sum row.
+    }
+
+    function openTab(evt, tabName) {
+        // This function will manage which tab is currently open.
+        // Declare all variables
+        var i, tabcontent, tablinks;
+
+  // Get all elements with class="tabcontent" and hide them
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+
+  // Get all elements with class="tab" and remove the class "active"
+  tablinks = document.getElementsByClassName("tab");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+
+  // Show the current tab, and add an "active" class to the button that opened the tab
+  document.getElementById(tabName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+// Add this to set the default tab open (if desired)
+document.addEventListener("DOMContentLoaded", function() {
+  // Default open tab
+  document.getElementById("defaultOpen").click();
+});
+
+    
+
+    // Additional logic to:
+    // - Generate AHP comparison tables for criteria and alternatives.
+    // - Perform AHP calculations and update the summary table with the results.
+    // - Calculate weighted sums in the summary table.
+</script>
+
+</body>
+</html>

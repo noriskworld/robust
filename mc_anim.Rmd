@@ -8,6 +8,7 @@ library(tidyverse)
 library(gridExtra)
 library(magick)
 options(digit = 6)
+old <- options(pillar.sigfig = 7)
 set.seed(42)
 ```
 ```{r}
@@ -133,13 +134,16 @@ hist_anim_data <- count_by_index(mcHist, N_FRAME) %>%
 Create gif for G and R
 
 ```{r}
+dotplot_data <- mcHist %>% 
+  filter(index<=5) %>% 
+  arrange(index, Variable)
 # dot plot for first 5 samples 
-tgplot <- mcHist %>%
-  filter(index <= 5 & Variable == "G") %>%
+tgplot <- dotplot_data %>%
+  filter(Variable == "G") %>%
   ggplot(aes(group = index, x = round)) + # group by index is important
   facet_grid(~Variable) +
   geom_point(aes(y=0), size = 5, color="black") + 
-  geom_text(aes(x=0.5, y=0.1, label = format(value, digits = 5)), 
+  geom_text(aes(x=0.5, y=0.1, label = round), 
                 position = position_dodge(width=0.9), color="blue", size = 10) +
   labs(x = "", y = "Frequency") +
   xlim(0.49, 0.51) +
@@ -148,12 +152,12 @@ tgplot <- mcHist %>%
     strip.text = element_text(size = 16, hjust = 0.1),
     axis.text.y = element_blank()) 
 
-trplot <- mcHist %>%
-  filter(index <= 5 & Variable != "G") %>%
+trplot <- dotplot_data %>%
+  filter(Variable != "G") %>%
   ggplot(aes(group = index, x = round)) + # group by index is important
   facet_grid(~Variable) +
   geom_point(aes(y=0), size = 5, color="black") + 
-  geom_text(aes(x=1, y=0.1, label = format(value, digits = 5)), 
+  geom_text(aes(x=1, y=0.1, label = round), 
                 position = position_dodge(width=0.9), color="blue", size = 10) +
   labs(x = "", y = "Frequency") +
     xlim(0.98, 1.02) +
@@ -166,34 +170,38 @@ trplot <- mcHist %>%
 
 ```
 Create GIF
+Use `transition_manual(frames = index) ` all through to avoid frames misalignment when using `transition_states(states = Time)`
+
+
 ```{r}
 # Create GIF
-r_anim <- trplot + transition_states(index)
+r_anim <- trplot + transition_manual(frames = index) 
 rgif <- animate(r_anim,
                 width = 800, height = 400,
                 nframes = 5, 
                 fps = 2.5,
                 #renderer = magick_renderer()
-                #renderer = gifski_renderer("./anim/tr.gif")
-                renderer = file_renderer("./frames", prefix = "tr")
+                renderer = gifski_renderer("./anim/tr.gif")
+                # renderer = file_renderer("./frames", prefix = "tr")
                 )
 
-g_anim <- tgplot + transition_states(index)
+g_anim <- tgplot + transition_manual(frames = index)
 ggif <- animate(g_anim,
                 width = 800, height = 400,
                 nframes = 5,
                 fps = 2.5,
+                renderer = gifski_renderer("./anim/tg.gif")
                 # renderer = magick_renderer()
-                renderer = file_renderer("./frames", prefix = "tg")
+                # renderer = file_renderer("./frames", prefix = "tg")
                 )
 ```
 Combine 2 gifs
 ```{r}
-#a_mgif <- image_read(rgif)
-#b_mgif <- image_read(ggif)
-new_gif <- image_append(c(rgif[1], ggif[1]), stack = TRUE)
+a_mgif <- image_read(rgif)
+b_mgif <- image_read(ggif)
+new_gif <- image_append(c(a_mgif[1], b_mgif[1]), stack = TRUE)
 for(i in 2:5) {
-  combined <- image_append(c(rgif[i], ggif[i]), stack = TRUE)
+  combined <- image_append(c(a_mgif[i], b_mgif[i]), stack = TRUE)
   new_gif <- c(new_gif, combined)
 }
 anim_save("./anim/5dots.gif", new_gif)
@@ -214,13 +222,16 @@ gplot <-
         strip.text = element_text(size = 32, hjust = 0.1),
         axis.text.y = element_blank())
 
-gbar_anim <- gplot + transition_states(idx,  transition_length = 1, state_length = 0)
+gbar_anim <- gplot + transition_manual(frames = idx)
 gbar_gif <- animate(gbar_anim,
                     nframes = N_FRAME,
                     width = 800, height = 260,
                     fps = FPS,
-                    renderer = magick_renderer())
-anim_save("./anim/gbar.gif", gbar_gif)
+                    renderer = gifski_renderer("./anim/gbar.gif"),
+                    # renderer = magick_renderer()
+                    # renderer = file_renderer("./frames", prefix = "gbar")
+)
+# anim_save("./anim/gbar.gif", gbar_gif)
 ### For R1 and R2
 rplot <-
   hist_anim_data %>%
@@ -236,19 +247,22 @@ rplot <-
         strip.text = element_text(size = 32, hjust = 0.1),
         axis.text.y = element_blank())
 
-rbar_anim <- rplot + transition_states(idx,  transition_length = 1, state_length = 0)
+rbar_anim <- rplot + transition_manual(frames = idx)
 rbar_gif <- animate(rbar_anim,
                     nframes = N_FRAME,
                     width = 800, height = 260,
                     fps = FPS,
-                    renderer = magick_renderer())
+                    renderer = gifski_renderer("./anim/rbar.gif")
+                    # renderer = magick_renderer()
+                    # renderer = file_renderer("./frames", prefix = "rbar")
+                    )
 
-anim_save("./anim/rbar.gif", gbar_gif)
+# anim_save("./anim/rbar.gif", gbar_gif)
 
 
 ```
 ```{r}
-counter_gif <- hist_anim_data %>% 
+counter_plot <- hist_anim_data %>% 
   arrange(idx) %>% 
   ggplot(aes(x = 1, y = 1, label = n_sample)) +
   geom_text(color = 'blue', size = 32) +
@@ -256,19 +270,19 @@ counter_gif <- hist_anim_data %>%
   theme(plot.background = element_rect(fill = "white"),
         text = element_text(size = 32, hjust = 0))
 
-counter_anim <- counter_gif + transition_states(idx, transition_length = 1, state_length = 0) +
+counter_anim <- counter_plot + transition_manual(frames = idx) +
   ease_aes('linear') +
   labs(title = 'Samples Generated', size = 24)
 
 # Create the animation object
-counter_anim_obj <- animate(counter_anim,
+counter_gif <- animate(counter_anim,
                             width = 800, height = 120,
                             nframes = N_FRAME,
                             fps = FPS,
-                            renderer = magick_renderer() ) 
+                            renderer = gifski_renderer("./anim/counter.gif") ) 
 
 # Save the animation to a file
-anim_save("./anim/counter.gif", counter_anim_obj)
+# anim_save("./anim/counter.gif", counter_anim_obj)
 ```
 
 

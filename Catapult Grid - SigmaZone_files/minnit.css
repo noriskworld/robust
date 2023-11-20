@@ -1,0 +1,101 @@
+minnit-container{
+  position:fixed;
+  left:0;
+  padding:0;
+  margin:0;
+  bottom:0;
+  border:0;
+  width:25%;
+  z-index:2147483647;
+  box-sizing: border-box;
+}
+minnit-container[data-size="button"] {
+  height:70px;
+  width:70px;
+}
+minnit-container[data-size="1"] {
+  height:60%;
+  width:25%;
+}
+minnit-container[data-size="2"] {
+  width:50%;
+  height:60%;
+}
+minnit-container[data-size="3"] {
+  width:75%;
+  height:60%;
+}
+minnit-container[data-placement="minnitPlacementR"] {
+  left:initial;
+  right:0;
+}
+minnit-close-chat{
+  display:block;
+  height:40px;
+  width:100%;
+  background-color:white;
+  color:black;
+  font-family:"Arial", Arial, sans-serif;
+  text-transform:none;
+  font-size:24px;
+  padding-top:10px;
+  padding-bottom:0;
+  margin:0;
+  text-align:center;
+  cursor:pointer;
+  border-left:1px solid #aaaaaa;
+  border-right:1px solid #aaaaaa;
+  border-top:1px solid #aaaaaa;
+  border-top-left-radius:8px;
+  border-top-right-radius:8px;
+  z-index:99;
+  line-height:1 !important;
+  box-sizing: border-box;
+}
+.minnit-chat-iframe{
+  display:inline-block;
+  height:calc(100% - 40px);
+  border-width:1px;
+  border:1px solid #aaaaaa;
+  border-style: solid;
+  border-top:0;
+  margin:0;
+  padding:0;
+}
+.minnit-chat-iframe-gutenberg-block{
+  min-width:350px;
+	max-width:100%;
+  min-height:300px;
+  max-height:98vh;
+  display:block;
+}
+minnit-chat{
+  margin:auto;
+}
+@media only screen and (max-width: 900px) {
+  minnit-container[data-size="1"], minnit-container[data-size="2"], minnit-container[data-size="3"] {
+		height:95vh;
+		max-height:95vh;
+	}
+	minnit-container[data-size="1"], minnit-container[data-size="2"], minnit-container[data-size="3"] {
+		width:95vw;
+	}
+}
+minnit-button{
+  min-width:20px;
+  display:inline-block;
+  padding:5px;
+  text-align:center;
+  height:70px;
+  width:70px;
+  margin-bottom:8px;
+  cursor:pointer;
+  z-index:99;
+  max-height:100%;
+}
+@media only screen and (max-width: 500px) {
+  minnit-container[data-size="small"],minnit-container[data-size="medium"],minnit-container[data-size="large"] {
+    width:100%;
+    height:80%;
+  }
+}

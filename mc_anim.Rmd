@@ -7,7 +7,10 @@ library(gganimate)
 library(tidyverse)
 library(gridExtra)
 library(magick)
+options(digit = 6)
 set.seed(42)
+```
+```{r}
 N_SIM <- 1000000
 mcRaw <- tibble(R1 = rnorm(N_SIM, 1, 0.04/12),
                 R2 = rnorm(N_SIM, 1, 0.04/12)) %>%
@@ -84,7 +87,7 @@ gg
 ```{r}
 # constants for animation
 FPS = 10
-N_FRAME = 120
+N_FRAME = 201
 ```
 
 
@@ -136,7 +139,7 @@ tgplot <- mcHist %>%
   ggplot(aes(group = index, x = round)) + # group by index is important
   facet_grid(~Variable) +
   geom_point(aes(y=0), size = 5, color="black") + 
-  geom_text(aes(x=0.5, y=0.1, label = format(value, digits = 4)), 
+  geom_text(aes(x=0.5, y=0.1, label = format(value, digits = 5)), 
                 position = position_dodge(width=0.9), color="blue", size = 10) +
   labs(x = "", y = "Frequency") +
   xlim(0.49, 0.51) +
@@ -150,7 +153,7 @@ trplot <- mcHist %>%
   ggplot(aes(group = index, x = round)) + # group by index is important
   facet_grid(~Variable) +
   geom_point(aes(y=0), size = 5, color="black") + 
-  geom_text(aes(x=1, y=0.1, label = format(value, digits = 4)), 
+  geom_text(aes(x=1, y=0.1, label = format(value, digits = 5)), 
                 position = position_dodge(width=0.9), color="blue", size = 10) +
   labs(x = "", y = "Frequency") +
     xlim(0.98, 1.02) +
@@ -170,24 +173,27 @@ rgif <- animate(r_anim,
                 width = 800, height = 400,
                 nframes = 5, 
                 fps = 2.5,
-                duration = 2,
-                renderer = gifski_renderer())
+                #renderer = magick_renderer()
+                #renderer = gifski_renderer("./anim/tr.gif")
+                renderer = file_renderer("./frames", prefix = "tr")
+                )
 
 g_anim <- tgplot + transition_states(index)
 ggif <- animate(g_anim,
                 width = 800, height = 400,
                 nframes = 5,
                 fps = 2.5,
-                duration = 2,
-                renderer = gifski_renderer())
+                # renderer = magick_renderer()
+                renderer = file_renderer("./frames", prefix = "tg")
+                )
 ```
 Combine 2 gifs
 ```{r}
-a_mgif <- image_read(rgif)
-b_mgif <- image_read(ggif)
-new_gif <- image_append(c(a_mgif[1], b_mgif[1]), stack = TRUE)
+#a_mgif <- image_read(rgif)
+#b_mgif <- image_read(ggif)
+new_gif <- image_append(c(rgif[1], ggif[1]), stack = TRUE)
 for(i in 2:5) {
-  combined <- image_append(c(a_mgif[i], b_mgif[i]), stack = TRUE)
+  combined <- image_append(c(rgif[i], ggif[i]), stack = TRUE)
   new_gif <- c(new_gif, combined)
 }
 anim_save("./anim/5dots.gif", new_gif)
@@ -213,7 +219,8 @@ gbar_gif <- animate(gbar_anim,
                     nframes = N_FRAME,
                     width = 800, height = 260,
                     fps = FPS,
-                    renderer = gifski_renderer("./anim/gbar.gif"))
+                    renderer = magick_renderer())
+anim_save("./anim/gbar.gif", gbar_gif)
 ### For R1 and R2
 rplot <-
   hist_anim_data %>%
@@ -234,7 +241,9 @@ rbar_gif <- animate(rbar_anim,
                     nframes = N_FRAME,
                     width = 800, height = 260,
                     fps = FPS,
-                    renderer = gifski_renderer("./anim/rbar.gif"))
+                    renderer = magick_renderer())
+
+anim_save("./anim/rbar.gif", gbar_gif)
 
 
 ```
@@ -254,9 +263,9 @@ counter_anim <- counter_gif + transition_states(idx, transition_length = 1, stat
 # Create the animation object
 counter_anim_obj <- animate(counter_anim,
                             width = 800, height = 120,
-                            nframes = 120,
+                            nframes = N_FRAME,
                             fps = FPS,
-                            renderer = gifski_renderer())
+                            renderer = magick_renderer() ) 
 
 # Save the animation to a file
 anim_save("./anim/counter.gif", counter_anim_obj)
@@ -282,7 +291,7 @@ counter_anim <- counter_gif + transition_time(time) +
 
 counter_gif <- animate(counter_anim,
                        width = 800, height = 120,
-                       nframes = 120,
+                       nframes = N_FRAME,
                        fps = FPS,
                        renderer = gifski_renderer("./anim/counter.gif"))
 ```

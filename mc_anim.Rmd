@@ -19,6 +19,11 @@ When using `gganimate`, the `gifski` renderer is not consistent. It may miss fra
 - Review PNG files, edit as needed.
 - Generate gif with `magick` package. 
 
+In this example, we use a statistical tolerance analysis of the voltage divider as an example.
+
+![Voltage Divider](~/Downloads/vdiv.svg)
+The voltage division ratio $G = \frac{R1}{R1 + R2}$, where $R_1$ and $R_2$ are independent variables following normal distributions. Our goal is to simulate this process a million times and visualize the distribution of G.
+
 ```{r}
 N_SIM <- 1e6
 mcHist <- tibble(R1 = rnorm(N_SIM, 1, 0.04/12),

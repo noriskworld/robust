@@ -5,4 +5,10 @@
 others
 frames
 mc_anim.nb.html
+scarp.qmd
 __pycache__
+stan.Rmd
+stan.nb.html
+tolerance_mc.html
+tolerance.nb.html
+.DS_Store

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Z-Score Calculator</title>
+<script src="https://cdn.jsdelivr.net/npm/jstat@1.9.4/dist/jstat.min.js"></script>
+<style>
+  table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+  th, td {
+    padding: 5px;
+    text-align: left;
+  }
+  th {
+    background-color: #f2f2f2;
+  }
+  input {
+    width: 100px;
+  }
+  button {
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h2>Z-Score Calculator</h2>
+<table id="zScoreTable">
+  <tr>
+    <th>Parameter</th>
+    <th>Value</th>
+  </tr>
+  <tr>
+    <td>LSL (Lower Specification Limit)</td>
+    <td><input type="number" id="lsl" /></td>
+  </tr>
+  <tr>
+    <td>USL (Upper Specification Limit)</td>
+    <td><input type="number" id="usl" /></td>
+  </tr>
+  <tr>
+    <td>Mean (µ)</td>
+    <td><input type="number" id="mu" /></td>
+  </tr>
+  <tr>
+    <td>Standard Deviation (σ)</td>
+    <td><input type="number" id="sigma" /></td>
+  </tr>
+  <tr>
+    <td>Long-term Z-Score</td>
+    <td id="zLtResult">-</td>
+  </tr>
+  <tr>
+    <td>Short-term Z-Score</td>
+    <td id="zStResult">-</td>
+  </tr>
+</table>
+<button onclick="calculateZScores()">Calculate Z-Scores</button>
+
+<script>
+// JavaScript function to calculate Z-scores
+function calculateZScores() {
+  var lsl = document.getElementById('lsl').value;
+  var usl = document.getElementById('usl').value;
+  var mu = document.getElementById('mu').value;
+  var sigma = document.getElementById('sigma').value;
+  
+  var results = zShortPrototype(parseFloat(lsl), parseFloat(usl), parseFloat(mu), parseFloat(sigma));
+  
+  document.getElementById('zLtResult').innerText = results.zLt.toFixed(2);
+  document.getElementById('zStResult').innerText = results.zSt.toFixed(2);
+}
+
+// JavaScript function to calculate short-term and long-term Z-scores
+// Import the jStat library if you're using this in a Node.js environment
+// const jStat = require('jstat');
+
+function zShortPrototype(lsl, usl, mu, sigma) {
+    let sigmaLt = 1.3 * sigma;
+    let dpoUSt = 0, dpoULt = 0, dpoLSt = 0, dpoLLt = 0;
+    
+    if (!isNaN(usl)) {
+        dpoUSt = 1 - jStat.normal.cdf((usl - mu) / sigma, 0, 1);
+        dpoULt = 1 - jStat.normal.cdf((usl - mu) / sigmaLt - 1.5, 0, 1);
+    }
+    
+    if (!isNaN(lsl)) {
+        dpoLSt = 1 - jStat.normal.cdf((mu - lsl) / sigma, 0, 1);
+        dpoLLt = 1 - jStat.normal.cdf((mu - lsl) / sigmaLt - 1.5, 0, 1);
+    }
+    
+    let dpoSt = dpoUSt + dpoLSt;
+    let zSt = jStat.normal.inv(1 - dpoSt, 0, 1);
+    
+    let dpoLt = dpoULt + dpoLLt;
+    let zLt = jStat.normal.inv(1 - dpoLt, 0, 1);
+    
+    return { zLt, zSt };
+}
+
+// Example usage:
+console.log(zShortPrototype(350, 440, 400, 20));
+
+</script>
+
+</body>
+</html>

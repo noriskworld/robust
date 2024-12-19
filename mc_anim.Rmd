@@ -1,7 +1,11 @@
 ---
 title: "Monte Carlo Visulization"
 output: html_notebook
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
+
 ```{r}
 library(gganimate)
 library(tidyverse)
@@ -12,17 +16,19 @@ old <- options(pillar.sigfig = 7)
 set.seed(42)
 ```
 
-Several notes:
-When using `gganimate`, the `gifski` renderer is not consistent. It may miss frames from to time. It appears the most consistent way of generating animation is 
-- Use `transistion_manual`
-- Use `file_renderer` to generate PNG files
-- Review PNG files, edit as needed.
-- Generate gif with `magick` package. 
+Several notes: When using `gganimate`, the `gifski` renderer is not
+consistent. It may miss frames from to time. It appears the most
+consistent way of generating animation is - Use `transistion_manual` -
+Use `file_renderer` to generate PNG files - Review PNG files, edit as
+needed. - Generate gif with `magick` package.
 
-In this example, we use a statistical tolerance analysis of the voltage divider as an example.
+In this example, we use a statistical tolerance analysis of the voltage
+divider as an example.
 
-![Voltage Divider](~/Downloads/vdiv.svg)
-The voltage division ratio $G = \frac{R1}{R1 + R2}$, where $R_1$ and $R_2$ are independent variables following normal distributions. Our goal is to simulate this process a million times and visualize the distribution of G.
+![Voltage Divider](~/Downloads/vdiv.svg) The voltage division ratio
+$G = \frac{R1}{R1 + R2}$, where $R_1$ and $R_2$ are independent
+variables following normal distributions. Our goal is to simulate this
+process a million times and visualize the distribution of G.
 
 ```{r}
 N_SIM <- 1e6
@@ -39,6 +45,7 @@ mcHist <- tibble(R1 = rnorm(N_SIM, 1, 0.04/12),
 
 
 ```
+
 # Create Frequency Table
 
 ```{r}
@@ -72,11 +79,14 @@ rplot <- count_by_round %>%
         axis.text.y = element_blank(),
         axis.text.x = element_text(angle=90, vjust=.5, hjust=1))
 ```
+
 Combine Plots
+
 ```{r}
 # Combine plots
 plot = grid.arrange(rplot, gplot, nrow = 2)
 ```
+
 ```{r}
 # alternatively, use geom_bar to generate histogram from raw data
 gg <- mcHist %>%
@@ -93,13 +103,11 @@ gg <- mcHist %>%
 gg
 ```
 
-
 ```{r}
 # constants for animation
 FPS = 10
 N_FRAME = 201
 ```
-
 
 ```{r}
 count_by_index <- function(mcHist, nframes=120) {
@@ -134,14 +142,17 @@ count_by_index <- function(mcHist, nframes=120) {
   return(data)
 }
 ```
+
 ```{r}
 hist_anim_data <- count_by_index(mcHist, N_FRAME) %>% 
   arrange(idx)
 ```
 
-
 ## Create Text for G and R
-In this section, we will create a text gif to demonstrate the concept of a transfer function, which takes values of x to generate corresponding values of y.
+
+In this section, we will create a text gif to demonstrate the concept of
+a transfer function, which takes values of x to generate corresponding
+values of y.
 
 ```{r}
 textplot_data <- mcHist %>% 
@@ -179,9 +190,9 @@ trplot <- textplot_data %>%
     )
 
 ```
-Create GIF
-Use `transition_manual(frames = index) ` all through to avoid frames misalignment when using `transition_states(states = Time)`
 
+Create GIF Use `transition_manual(frames = index)` all through to avoid
+frames misalignment when using `transition_states(states = Time)`
 
 ```{r}
 # Create GIF
@@ -205,7 +216,9 @@ ggif <- animate(g_anim,
                 # renderer = file_renderer("./frames", prefix = "tg")
                 )
 ```
+
 Combine 2 gifs
+
 ```{r}
 a_mgif <- image_read(rgif)
 b_mgif <- image_read(ggif)
@@ -231,8 +244,8 @@ return(new_gif)
 
 # Create dot histogram
 
-In this section, we create a histogram gif, where each dot represent one data point. 
-
+In this section, we create a histogram gif, where each dot represent one
+data point.
 
 ```{r}
 first_n = 100
@@ -299,8 +312,8 @@ fn_gif <- stack2gif(fr_anim, fg_anim, first_n) %>%
 
 anim_save("./anim/fn.gif", fn_gif)
 ```
-## Historgram bar gif
 
+## Historgram bar gif
 
 ```{r}
 gplot <-
@@ -358,8 +371,6 @@ rbar_gif <- animate(rbar_anim,
 
 ```
 
-
-
 ```{backup}
 # Create a counter 
 counter <- tibble(count = 1:N_SIM,
@@ -384,6 +395,7 @@ counter_gif <- animate(counter_anim,
 ```
 
 Combine 2 gifs
+
 ```{r}
 a_mgif <- image_read(rbar_gif)
 b_mgif <- image_read(gbar_gif)
@@ -404,5 +416,8 @@ anim_save("./anim/bar.gif", new_gif)
 ```
 
 ## Reference
-- [Roh's Animation, without using `gganimate`](https://roh.engineering/posts/2018/05/animating-a-monte-carlo-simulation/)
-- [Stackoverflow - Animated histogram, using ``gganimate`](https://stackoverflow.com/questions/61446108/animated-dot-histogram-built-observation-by-observation-using-gganimate-in-r)
+
+-   [Roh's Animation, without using
+    `gganimate`](https://roh.engineering/posts/2018/05/animating-a-monte-carlo-simulation/)
+-   [Stackoverflow - Animated histogram, using
+    \``gganimate`](https://stackoverflow.com/questions/61446108/animated-dot-histogram-built-observation-by-observation-using-gganimate-in-r)

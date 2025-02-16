@@ -1,20 +1,54 @@
-[
-  {
-    "task_name": "Create Functional Requirements",
-    "mandatory_input": ["Product Name", "Product Description"],
-    "optional_input": ["Location of Use", "Location of Manufacturing", "Other"],
-    "prompts": ["Context: you are brainstorming for a Design FMEA for product from user input. We will focus on create the functional requirement in this step.", 
-                "Consideration: A good functional requiment needs to be S.M.A.R.T",
-                "deliverable: a list of S.M.A.R.T functional requirements of the product from user input"]
-  }
-,
-  {
-    "task_name": "Create Failure Modes",
-    "mandatory_input": ["Product Name", "Failure Modes"],
-    "optional_input": ["Product Description", "Other"],
-    "prompts": ["Context: you are brainstorming for a Design FMEA. We will focus on create the failure modes in this step.", 
-                "Consider failure modes in one of the following categories: ",
-                "Total Loss of Function:\n\nComplete failure to perform the intended function.\nExample: A car engine that does not start.\nIntermittent Loss of Function:\n\nFunctionality is lost and regained sporadically.\nExample: A flickering light bulb.\nDegraded Performance:\n\nFunction is performed, but not to the required standard.\nExample: A printer that prints faded text.\nUnintended Function:\n\nPerforming a function that was not intended.\nExample: A microwave that starts heating without being turned on.\nWrong Timing:\n\nFunction is performed at the incorrect time.\nExample: An alarm clock that rings at the wrong time.\nPartial Loss of Function:\n\nOnly part of the function is lost.\nExample: A car window that only rolls down halfway."
-                ]
-  }
-]
+{
+  "tasks": [
+    {
+      "task_id": "001",
+      "task_name": "Create Functional Requirements",
+      "description": "Create a list of Functional Requirements for the Focus Item",
+      "input_fields": [
+        {
+          "name": "Item_Name",
+          "type": "string",
+          "required": true,
+          "description": "Name of the item for which functional requirements are being created"
+        },
+        {
+          "name": "Item_Description",
+          "type": "string",
+          "required": false,
+          "description": "Brief description of the item (optional)"
+        }
+      ],
+      "prompt_template": "Context: You are brainstorming for a Design FMEA for {Item_Name}. {Item_Description}\n\nPlease create a list of functional requirements for this item. Consider the following aspects:\n1. Core functionalities\n2. Performance requirements\n3. User interface requirements\n4. Safety requirements\n5. Compatibility requirements\n\nProvide a detailed list of functional requirements, ensuring each requirement is clear, specific, and measurable where possible.",
+      "metadata": {
+        "author": "Global DfSR Team",
+        "version": "1.0",
+        "last_modified": "2025-02-15"
+      }
+    },
+    {
+      "task_id": "002",
+      "task_name": "Create Failure Modes",
+      "description": "Create a list of failure modes for a given function of the focus item.",
+      "input_fields": [
+        {
+          "name": "Item_Name",
+          "type": "string",
+          "required": true,
+          "description": "Name of the item for which failure modes are being identified"
+        },
+        {
+          "name": "Function",
+          "type": "string",
+          "required": true,
+          "description": "Specific function of the item being analyzed"
+        }
+      ],
+      "prompt_template": "Context: You are brainstorming for a Design FMEA for {Item_Name}, focusing on the function: {Function}.\n\nCreate a list of potential failure modes for this function. Consider the following categories:\n\n1. Total Loss of Function: Complete failure to perform the intended function.\n   Example: A car engine that does not start.\n2. Intermittent Loss of Function: Functionality is lost and regained sporadically.\n   Example: A flickering light bulb.\n3. Degraded Performance: Function is performed, but not to the required standard.\n   Example: A printer that prints faded text.\n4. Unintended Function: Performing a function that was not intended.\n   Example: A microwave that starts heating without being turned on.\n5. Wrong Timing: Function is performed at the incorrect time.\n   Example: An alarm clock that rings at the wrong time.\n6. Partial Loss of Function: Only part of the function is lost.\n   Example: A car window that only rolls down halfway.\n\nProvide a detailed list of potential failure modes, ensuring each mode is specific to the given function and item.",
+      "metadata": {
+        "author": "Global DfSR Team",
+        "version": "1.1",
+        "last_modified": "2025-02-16"
+      }
+    }
+  ]
+}
